@@ -1,0 +1,5 @@
+{
+  "name": "Awazon",
+  "description": "An Amazon-like shopping site where you can spend virtual currency on AI-generated products. All product descriptions and images are created by AI, providing a unique and ever-changing catalog.",
+  "requestFramePermissions": []
+}
