@@ -1,5 +1,6 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import type { GeneratedProductData } from '../types';
+import type { Language } from "../lib/translations";
 
 if (!process.env.API_KEY) {
     throw new Error("API_KEY environment variable not set");
@@ -7,11 +8,15 @@ if (!process.env.API_KEY) {
 
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
-export async function generateProduct(): Promise<GeneratedProductData> {
+export async function generateProduct(language: Language): Promise<GeneratedProductData> {
+  const prompt = language === 'ja'
+    ? "eコマースサイトで販売できる、ユニークで想像力豊かな製品を1つ生成してください。製品は面白く、魅力的に聞こえる必要があります。提供してください： 1. 短くキャッチーな「名前」。 2. 1〜2文の「説明」。 3. 1000から90000の間の整数としての「価格」。"
+    : "Generate one unique and imaginative product that could be sold on an e-commerce website. The product should be interesting and sound desirable. Provide: 1. A short, catchy 'name'. 2. A 'description' of 1-2 sentences. 3. A 'price' as an integer between 1000 and 90000.";
+
   try {
     const response = await ai.models.generateContent({
       model: "gemini-2.5-flash",
-      contents: "Generate one unique and imaginative product that could be sold on an e-commerce website. The product should be interesting and sound desirable. Provide: 1. A short, catchy 'name'. 2. A 'description' of 1-2 sentences. 3. A 'price' as an integer between 1000 and 90000.",
+      contents: prompt,
       config: {
         responseMimeType: "application/json",
         responseSchema: {
@@ -19,15 +24,15 @@ export async function generateProduct(): Promise<GeneratedProductData> {
           properties: {
             name: {
               type: Type.STRING,
-              description: 'The short, catchy name of the product.',
+              description: language === 'ja' ? '製品の短くキャッチーな名前。' : 'The short, catchy name of the product.',
             },
             description: {
               type: Type.STRING,
-              description: 'A 1-2 sentence compelling description of the product.',
+              description: language === 'ja' ? '製品の1〜2文の魅力的な説明。' : 'A 1-2 sentence compelling description of the product.',
             },
             price: {
               type: Type.INTEGER,
-              description: 'The price of the product, as an integer.',
+              description: language === 'ja' ? '製品の価格（整数）。' : 'The price of the product, as an integer.',
             },
           },
           required: ["name", "description", "price"],

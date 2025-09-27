@@ -4,19 +4,21 @@ import { generateProduct, generateProductImage } from './services/geminiService'
 import { Header } from './components/Header';
 import { Loader } from './components/Loader';
 import { ProductView } from './components/ProductView';
+import { LanguageProvider, useLanguage } from './contexts/LanguageContext';
 
-const App: React.FC = () => {
+const AppContent: React.FC = () => {
     const [currentProduct, setCurrentProduct] = useState<Product | null>(null);
     const [balance, setBalance] = useState<number>(500000);
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
+    const { t, language } = useLanguage();
 
     const fetchNextProduct = useCallback(async () => {
         setIsLoading(true);
         setError(null);
         setCurrentProduct(null); 
         try {
-            const productData: GeneratedProductData = await generateProduct();
+            const productData: GeneratedProductData = await generateProduct(language);
             
             const imageUrl = await generateProductImage(productData.name);
             
@@ -30,27 +32,26 @@ const App: React.FC = () => {
 
             setCurrentProduct(newProduct);
         } catch (err) {
-            setError('Failed to load a new product. The AI might be taking a break. Please try again.');
+            setError(t('app.error'));
             console.error(err);
         } finally {
             setIsLoading(false);
         }
-    }, []);
+    }, [t, language]);
 
     useEffect(() => {
         fetchNextProduct();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    }, [fetchNextProduct]);
 
     const handleBuy = () => {
         if (!currentProduct) return;
 
         if (balance >= currentProduct.price) {
             setBalance(prevBalance => prevBalance - currentProduct.price);
-            alert(`Purchase successful! You bought "${currentProduct.name}" for G ${currentProduct.price.toLocaleString()}.`);
+            alert(t('app.purchaseSuccess', currentProduct.name, currentProduct.price.toLocaleString()));
             fetchNextProduct();
         } else {
-            alert('Purchase failed: Insufficient balance.');
+            alert(t('app.purchaseFail'));
         }
     };
 
@@ -67,7 +68,7 @@ const App: React.FC = () => {
                     <div className="text-center p-8 bg-white rounded-lg shadow-md">
                         <p className="text-red-600 font-semibold">{error}</p>
                         <button onClick={fetchNextProduct} className="mt-4 px-6 py-2 bg-yellow-500 text-gray-800 font-semibold rounded-lg hover:bg-yellow-600">
-                            Try Again
+                            {t('app.tryAgain')}
                         </button>
                     </div>
                 )}
@@ -82,5 +83,14 @@ const App: React.FC = () => {
         </div>
     );
 };
+
+const App: React.FC = () => {
+    return (
+        <LanguageProvider>
+            <AppContent />
+        </LanguageProvider>
+    );
+};
+
 
 export default App;

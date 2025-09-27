@@ -2,6 +2,7 @@
 import React from 'react';
 import type { CartItem } from '../types';
 import { CloseIcon } from './icons';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface CartProps {
   isOpen: boolean;
@@ -13,6 +14,7 @@ interface CartProps {
 }
 
 export const Cart: React.FC<CartProps> = ({ isOpen, onClose, cartItems, onRemove, onCheckout, balance }) => {
+  const { t } = useLanguage();
   if (!isOpen) return null;
 
   const subtotal = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
@@ -22,7 +24,7 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose, cartItems, onRemove
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-end" onClick={onClose}>
       <div className="bg-white w-full max-w-md h-full flex flex-col" onClick={(e) => e.stopPropagation()}>
         <div className="p-4 border-b flex justify-between items-center">
-          <h2 className="text-2xl font-bold">Shopping Cart</h2>
+          <h2 className="text-2xl font-bold">{t('cart.title')}</h2>
           <button onClick={onClose} className="p-2 rounded-full hover:bg-gray-200">
             <CloseIcon className="h-6 w-6" />
           </button>
@@ -30,7 +32,7 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose, cartItems, onRemove
 
         {cartItems.length === 0 ? (
           <div className="flex-grow flex items-center justify-center">
-            <p className="text-gray-500">Your cart is empty.</p>
+            <p className="text-gray-500">{t('cart.empty')}</p>
           </div>
         ) : (
           <div className="flex-grow overflow-y-auto p-4 space-y-4">
@@ -46,7 +48,7 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose, cartItems, onRemove
                   onClick={() => onRemove(item.id)}
                   className="text-red-500 hover:text-red-700 font-semibold"
                 >
-                  Remove
+                  {t('cart.remove')}
                 </button>
               </div>
             ))}
@@ -55,22 +57,22 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose, cartItems, onRemove
 
         <div className="p-4 border-t mt-auto">
           <div className="flex justify-between items-center mb-2">
-            <span className="text-lg font-semibold">Subtotal:</span>
+            <span className="text-lg font-semibold">{t('cart.subtotal')}</span>
             <span className="text-lg font-bold">G {subtotal.toLocaleString()}</span>
           </div>
           <div className="flex justify-between items-center mb-4">
-            <span className="text-sm">Your Balance:</span>
+            <span className="text-sm">{t('cart.yourBalance')}</span>
             <span className="text-sm">G {balance.toLocaleString()}</span>
           </div>
           {!canAfford && subtotal > 0 && (
-            <p className="text-red-600 text-center mb-4 font-semibold">Insufficient funds to complete purchase.</p>
+            <p className="text-red-600 text-center mb-4 font-semibold">{t('cart.insufficientFunds')}</p>
           )}
           <button
             onClick={onCheckout}
             disabled={cartItems.length === 0 || !canAfford}
             className="w-full bg-yellow-500 text-gray-800 font-bold py-3 rounded-lg disabled:bg-gray-300 disabled:cursor-not-allowed hover:bg-yellow-600 transition-colors"
           >
-            Proceed to Checkout
+            {t('cart.checkout')}
           </button>
         </div>
       </div>

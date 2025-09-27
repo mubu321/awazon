@@ -1,7 +1,10 @@
 
+
 import React from 'react';
 import type { Product } from '../types';
 import { StarIcon } from './icons';
+import { useLanguage } from '../contexts/LanguageContext';
+
 
 interface ProductCardProps {
   product: Product;
@@ -9,6 +12,7 @@ interface ProductCardProps {
 }
 
 export const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
+  const { t } = useLanguage();
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden flex flex-col transition-transform duration-300 hover:scale-105 hover:shadow-xl">
       <div className="w-full h-48 sm:h-56 bg-gray-100 flex items-center justify-center">
@@ -32,7 +36,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }
             onClick={() => onAddToCart(product)}
             className="w-full bg-yellow-500 text-gray-800 font-semibold py-2 rounded-lg hover:bg-yellow-600 transition-colors"
             >
-            Add to Cart
+            {t('productCard.addToCart')}
             </button>
         </div>
       </div>
